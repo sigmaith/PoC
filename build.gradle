@@ -1,0 +1,44 @@
+plugins {
+    id 'java'
+    id 'antlr'
+}
+
+group = 'com.example'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation platform('org.junit:junit-bom:5.9.1')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    antlr 'org.antlr:antlr4:4.9.3'
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src/main/java', 'build/generated-src/antlr/main']
+        }
+        antlr {
+            srcDir 'src/main/antlr'
+        }
+    }
+}
+
+// ANTLR 소스 파일로부터 파서 및 렉서 파일 생성
+generateGrammarSource {
+    maxHeapSize = "64m"
+    arguments += ['-visitor', '-Dlanguage=Java', '-package', 'com.example']
+    file("${project}/generated-src/antlr/main")
+}
+
+// 컴파일 시 ANTLR로 생성된 파일도 포함
+compileJava {
+    dependsOn generateGrammarSource
+}
+
+test {
+    useJUnitPlatform()
+}
